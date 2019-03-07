@@ -1,8 +1,12 @@
-var books = [
-  { title: 'Harry Potter', author: 'J.K. Rowling', imageURL: 'https://books.google.com/books/content?id=WV8pZj_oNBwC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api', isbn: '9781921479311', pageCount: 268 },
+// create a new collection with a new books model already inside
+var booksCollection = Collection(
+  Model({ title: 'Harry Potter', author: 'J.K. Rowling', imageURL: 'https://books.google.com/books/content?id=WV8pZj_oNBwC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api', isbn: '9781921479311', pageCount: 268 })
+);
 
-];
-
+// when a book is added to the collection, render the books
+booksCollection.change(function () {
+  renderBooks();
+});
 
 var fetch = function (query) {
   var baseUrl = 'https://www.googleapis.com/books/v1/volumes?q=';
@@ -23,7 +27,8 @@ var fetch = function (query) {
 };
 
 var addBooks = function (data) {
-  books = [];
+  // reset the books collection to empty
+  booksCollection.reset()
 
   for (var i = 0; i < data.items.length; i++) {
     var bookData = data.items[i];
@@ -68,30 +73,39 @@ var addBooks = function (data) {
       }
     };
 
-    var book = {
+    var bookModel = Model({
       title: title(),
       author: author(),
       imageURL: imageURL(),
       pageCount: pageCount(),
       isbn: isbn()
-    };
+    });
 
-    books.push(book);
+    booksCollection.add(bookModel);
   }
-
-  renderBooks();
 };
 
 
 var renderBooks = function () {
   $('.books').empty();
 
-  for (var i = 0; i < books.length; i++) {
+  var models = booksCollection.getModels();
+
+  for (var i = 0; i < models.length; i++) {
     var source = $('#book-template').html();
     var template = Handlebars.compile(source);
-    var book = template(books[i]);
 
-    $('.books').append(book);
+    var book = {
+      title: models[i].get('title'),
+      author: models[i].get('author'),
+      pageCount: models[i].get('pageCount'),
+      isbn: models[i].get('isbn'),
+      imageURL: models[i].get('imageURL')
+    };
+
+    var bookHTML = template(book);
+
+    $('.books').append(bookHTML);
   }
 }
 

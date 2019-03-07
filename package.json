@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/projectshft/book-shelf#readme",
   "dependencies": {
+    "handlebars": "^4.0.11",
     "jquery": "^3.3.1"
   }
 }
